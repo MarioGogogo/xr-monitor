@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>打包工具库测试</title>
+    <script src="dist/xr-monitor-sdk.js"></script>
+    <script>
+      // 现在，您可以使用 XrMonitor 对象来访问您的库中的方法
+      XrMonitor.init({
+        url: '错误上报地址', //错误上报地址
+        jsError: true,
+        promiseError: true,
+        vueError: false, //配置是否需要记录vue错误信息
+        vue: '', //如需监控vue错误信息，则需要传入vue实例
+        httpError: true,
+        performance: true,
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="content">
+        <img src="./assets/logo.png" alt="" srcset="" />
+        <button type="button" value="点击抛出错误" id="error-btn" class="errorBtn" />
+        <input type="button" value="点击抛出Promise错误" onclick="promiseClick()" />
+        <input id="successBtn" type="button" value="ajax 成功请求" onclick="sendSuccess()" />
+        <input id="errorBtn" type="button" value="ajax 失败请求" onclick="sendError()" />
+        <div class="conten1t" style="width: 600px; word-wrap: break-word"></div>
+      </div>
+    </div>
+    <script>
+      document.querySelector('#error-btn').addEventListener('click', errorClick, false);
+      function errorClick() {
+        console.log('[ a.b ] >', a.b);
+        // window.someVar.error = 'error';
+      }
+      function promiseClick() {
+        //会被捕获
+        return new Promise(function (resolve, reject) {
+          window.someVar.error = 'error';
+        });
+        // return new Promise(function (resolve, reject) {
+        //   window.someVar.error = 'error';
+        // }).catch(function (error) {
+        //   //TODO:如果catch 则不会发送日志信息 需要优化
+        //   console.log(error);
+        // });
+        //会被捕获
+        // return new Promise(function (resolve, reject) {
+        //   reject('123');
+        // });
+        //不会被捕获
+        // return new Promise(function (resolve, reject) {
+        //   resolve('123');
+        // });
+      }
+      function sendSuccess() {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://mock.apifox.cn/m1/2754975-0-default/success', true);
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+          console.log(xhr.response);
+        };
+        xhr.send();
+      }
+      function sendError() {
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://mock.apifox.cn/m1/2754975-0-default/error', true);
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+          console.log(xhr.response);
+        };
+        xhr.onerror = function (error) {
+          console.log(error);
+        };
+        xhr.send('{name: "张三"}');
+      }
+
+      // let content = document.getElementsByClassName('conten1t')[0]
+      // content.innerHTML = '@'.repeat(10000)
+
+      // // DOM 解析完成，即使依赖的资源没有加载完成，也会触发这个事件
+      // document.addEventListener('DOMContentLoaded', () => {
+      //   let start = Date.now();
+
+      //   while (Date.now() - start < 1000) { }
+      // })
+
+      // setTimeout(() => {
+      //   let content = document.getElementsByClassName('content')[0];
+      //   let h1 = document.createElement('h1');
+      //   h1.innerHTML = '我是页面中最有意义的内容';
+      //   h1.setAttribute('elementtiming', 'meaningful');
+      //   content.appendChild(h1);
+      // }, 2000);
+    </script>
+    <!-- 资源加载错误 -->
+    <script src="./someError.js"></script>
+  </body>
+</html>
