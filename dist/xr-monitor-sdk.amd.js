@@ -68,7 +68,7 @@ define((function () { 'use strict';
     const {
       activeElement
     } = document;
-    return activeElement;
+    return activeElement.classList + '_' + activeElement.id + '_' + activeElement.localName;
   }
   function today_now() {
     let yy = new Date().getFullYear();
@@ -402,7 +402,6 @@ define((function () { 'use strict';
           let status = this.status; //200 500
           let statusText = this.statusText; // OK Server Error
           report.send({
-            kind: 'stability',
             type: 'xhr',
             eventType: type,
             //load error abort
@@ -414,7 +413,7 @@ define((function () { 'use strict';
             //持续时间
             response: this.response ? JSON.stringify(this.response) : '',
             //响应体
-            params: body || ''
+            request: body || ''
           });
         };
         this.addEventListener('load', handler('load'), false);
@@ -454,9 +453,9 @@ define((function () { 'use strict';
           let duration = firstInput.duration; //处理的耗时
           if (inputDelay > 0 || duration > 0) {
             report.send({
-              kind: 'experience',
+              type: 'performance',
               //用户体验指标
-              type: 'firstInputDelay',
+              eventType: 'firstInputDelay',
               //首次输入延迟
               inputDelay,
               //延时的时间
@@ -469,7 +468,7 @@ define((function () { 'use strict';
         }
         observer.disconnect(); //不再观察了
       }).observe({
-        type: 'first-input',
+        type: 'performance',
         buffered: true
       }); //观察页面中的意义的元素
     }
@@ -491,7 +490,9 @@ define((function () { 'use strict';
           loadEventStart
         } = performance.timing;
         report.send({
-          type: 'timing',
+          type: 'performance',
+          //用户体验指标
+          eventType: 'timing',
           //统计每个阶段的时间
           connectTime: connectEnd - connectStart,
           //连接时间
@@ -510,9 +511,14 @@ define((function () { 'use strict';
         let FP = performance.getEntriesByName('first-paint')[0];
         let FCP = performance.getEntriesByName('first-contentful-paint')[0];
         //开始发送性能指标
-
+        // console.log('FP', FP);
+        // console.log('FCP', FCP);
+        // console.log('FMP', FMP);
+        // console.log('LCP', LCP);
         report.send({
-          type: 'paint',
+          type: 'performance',
+          //用户体验指标
+          eventType: 'paint',
           //统计每个阶段的时间
           firstPaint: FP ? FP.startTime : '',
           firstContentfulPaint: FCP ? FCP.startTime : '',
@@ -539,17 +545,24 @@ define((function () { 'use strict';
         jsError,
         promiseError,
         vueError,
-        httpError,
         performance
       } = this.options;
       jsError && jsErrorHandle();
       promiseError && promiseErrorHandle();
       vueError && vueErrorHandler();
+    }
+    tool_http() {
+      const {
+        httpError
+      } = this.options;
       httpError && httpErrorHandle();
+    }
+    tool_performance() {
+      const {
+        performance
+      } = this.options;
       performance && performanceHandle();
     }
-    tool_http() {}
-    tool_performance() {}
   }
 
   return xrMonitor;
