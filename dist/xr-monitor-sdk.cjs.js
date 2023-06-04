@@ -424,6 +424,98 @@ function httpErrorHandle() {
   };
 }
 
+/**
+ * history路由监听
+ */
+function historyPageTrackerReport() {
+
+  /**
+   * 重写pushState和replaceState方法
+   * @param {*} name
+   * @returns
+   */
+  const createHistoryEvent = function (name) {
+    // 拿到原来的处理方法
+    const origin = window.history[name];
+    return function (event) {
+      // if (name === 'replaceState') {
+      //   const { current } = event;
+      //   const pathName = location.pathname;
+      //   if (current === pathName) {
+      //     let res = origin.apply(this, arguments);
+      //     return res;
+      //   }
+      // }
+
+      let res = origin.apply(this, arguments);
+      let e = new Event(name);
+      e.arguments = arguments;
+      window.dispatchEvent(e);
+      return res;
+    };
+  };
+
+  // history.pushState
+  window.addEventListener('pushState', function () {
+  });
+
+  // history.replaceState
+  window.addEventListener('replaceState', function () {
+  });
+  window.history.pushState = createHistoryEvent('pushState');
+  window.history.replaceState = createHistoryEvent('replaceState');
+
+  // 页面load监听
+  window.addEventListener('load', function () {
+  });
+
+  // unload监听
+  window.addEventListener('unload', function () {
+  });
+
+  // history.go()、history.back()、history.forward() 监听
+  window.addEventListener('popstate', function () {
+  });
+}
+
+/**
+ * hash路由监听
+ */
+function hashPageTrackerReport() {
+
+  // hash路由监听
+  window.addEventListener('hashchange', function () {
+  });
+
+  // 页面load监听
+  window.addEventListener('load', function () {
+  });
+  const createHistoryEvent = function (name) {
+    const origin = window.history[name];
+    return function (event) {
+      // if (name === 'replaceState') {
+      //   const { current } = event;
+      //   const pathName = location.pathname;
+      //   if (current === pathName) {
+      //     let res = origin.apply(this, arguments);
+      //     return res;
+      //   }
+      // }
+
+      let res = origin.apply(this, arguments);
+      let e = new Event(name);
+      e.arguments = arguments;
+      window.dispatchEvent(e);
+      return res;
+    };
+  };
+  window.history.pushState = createHistoryEvent('pushState');
+
+  // history.pushState
+  window.addEventListener('pushState', function () {
+  });
+}
+
 function performanceHandle() {
   let FMP, LCP;
   // 增加一个性能条目的观察者
@@ -538,6 +630,7 @@ class xrMonitor {
     monitor.tool_error();
     monitor.tool_http();
     monitor.tool_performance();
+    monitor.tool_pageRouter();
     return monitor;
   }
   tool_error() {
@@ -562,6 +655,13 @@ class xrMonitor {
       performance
     } = this.options;
     performance && performanceHandle();
+  }
+  tool_pageRouter() {
+    const {
+      pageRouter
+    } = this.options;
+    pageRouter === 'hash' && hashPageTrackerReport();
+    pageRouter === 'history' && historyPageTrackerReport();
   }
 }
 
