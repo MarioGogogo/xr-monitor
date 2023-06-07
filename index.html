@@ -8,13 +8,13 @@
     <script>
       // 现在，您可以使用 XrMonitor 对象来访问您的库中的方法
       XrMonitor.init({
-        url: '错误上报地址', //错误上报地址
+        url: 'http://127.0.0.1:7001/logs', //错误上报地址
         jsError: true,
         promiseError: true,
         vueError: false, //配置是否需要记录vue错误信息
         vue: '', //如需监控vue错误信息，则需要传入vue实例
-        httpError: true,
-        performance: true,
+        actionLogs: true, //是否需要记录action
+        performanceLogs: false, //是否需要记录性能
       });
     </script>
   </head>

@@ -646,22 +646,24 @@ class xrMonitor {
   }
   tool_http() {
     const {
-      httpError
+      actionLogs
     } = this.options;
-    httpError && httpErrorHandle();
+    actionLogs && httpErrorHandle();
   }
   tool_performance() {
     const {
-      performance
+      performanceLogs
     } = this.options;
-    performance && performanceHandle();
+    performanceLogs && performanceHandle();
   }
   tool_pageRouter() {
     const {
       pageRouter
     } = this.options;
-    pageRouter === 'hash' && hashPageTrackerReport();
-    pageRouter === 'history' && historyPageTrackerReport();
+    if (pageRouter) {
+      hashPageTrackerReport();
+      historyPageTrackerReport();
+    }
   }
 }
 
