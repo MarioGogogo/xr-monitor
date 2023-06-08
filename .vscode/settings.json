@@ -1,0 +1,22 @@
+{
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 16,
+  "editor.lineHeight": 22,
+  "editor.letterSpacing": 0.5,
+  "editor.fontWeight": "400",
+  "editor.cursorStyle": "line",
+  "editor.cursorWidth": 5,
+  "editor.cursorBlinking": "solid",
+  "window.zoomLevel": 0,
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#ea858e", //侧边栏背景色
+    "statusBarItem.hoverBackground": "#b94f59", //底部状态栏选择颜色
+    "statusBar.foreground": "#fff", //底部侧边栏前景色
+    "activityBar.background": "#ea858e", //侧边工具栏
+    "activityBar.inactiveForeground": "#ebe8e8",
+    "activityBar.foreground": "#b94f59", //侧边工具栏图标
+    "titleBar.inactiveBackground": "#ea6f75" //非活动区域的颜色
+  }
+}
