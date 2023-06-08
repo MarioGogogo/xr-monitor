@@ -79,6 +79,18 @@ define((function () { 'use strict';
     let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds();
     return `${yy}-${mm}-${dd} ${hh}:${mf}:${ss}`;
   }
+  function checkOptions(options) {
+    if (!options) {
+      throw new Error('options不能为空');
+    }
+    if (options.url === '') {
+      throw new Error('url不能为空');
+    }
+    if (options.vueError && options.vue == '') {
+      throw new Error('vue实例不能为空');
+    }
+    return true;
+  }
 
   /*!
    * user-agent
@@ -626,6 +638,8 @@ define((function () { 'use strict';
       this.options = options;
     }
     static init(options) {
+      //检查参数配置是否合法
+      checkOptions(options);
       const monitor = new xrMonitor(options);
       monitor.tool_error();
       monitor.tool_http();

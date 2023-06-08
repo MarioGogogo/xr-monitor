@@ -6,9 +6,11 @@
     <title>打包工具库测试</title>
     <script src="dist/xr-monitor-sdk.js"></script>
     <script>
-      // 现在，您可以使用 XrMonitor 对象来访问您的库中的方法
+      // 现在，您可以使用 XrMonitor 对象来访问您的库中的方法 http://43.134.241.119:7001
+
       XrMonitor.init({
-        url: 'http://127.0.0.1:7001/logs', //错误上报地址
+        // url: 'http://127.0.0.1:7001/logs', //错误上报地址
+        url: 'http://43.134.241.119:7001',
         jsError: true,
         promiseError: true,
         vueError: false, //配置是否需要记录vue错误信息
@@ -23,7 +25,7 @@
     <div id="container">
       <div class="content">
         <!-- <img src="./assets/logo.png" alt="" srcset="" /> -->
-        <button type="button" value="点击抛出错误" id="error-btn" class="errorBtn">点击抛出错误</button>
+        <button type="button" value="点击抛出错误" id="error-btn" class="errorBtn">jsError错误</button>
         <input type="button" value="点击抛出Promise错误" onclick="promiseClick()" />
         <input id="successBtn" type="button" value="ajax 成功请求" onclick="sendSuccess()" />
         <input id="errorBtn" type="button" value="ajax 失败请求" onclick="sendError()" />
@@ -75,7 +77,24 @@
         xhr.onerror = function (error) {
           console.log(error);
         };
-        xhr.send('{name: "张三"}');
+        const data = {
+          balance: '$3,730.76',
+          picture: 'http://placehold.it/32x32',
+          age: 40,
+          eyeColor: 'green',
+          name: 'Kathy Lane',
+          gender: 'female',
+          company: 'FLEETMIX',
+          email: 'kathylane@fleetmix.com',
+          phone: '+1 (818) 555-2917',
+          address: '700 Pierrepont Place, Imperial, Oregon, 1039',
+          about:
+            'Voluptate mollit ea exercitation dolor laboris minim mollit eu sit sunt voluptate consectetur fugiat reprehenderit. Ut commodo velit labore velit nulla incididunt pariatur. Nisi in non ullamco minim ea ut sint est adipisicing eu commodo in. Esse tempor consectetur consectetur nisi non dolore occaecat ipsum ea amet sit velit.\r\n',
+          registered: '2016-08-16T11:25:04 -08:00',
+          latitude: -11.631199,
+          longitude: 53.81505,
+        };
+        xhr.send(JSON.stringify(data));
       }
 
       // let content = document.getElementsByClassName('conten1t')[0]
