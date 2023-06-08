@@ -1,6 +1,6 @@
 {
   "name": "xr-monitor-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/xr-monitor-sdk.js",
   "license": "MIT",
   "scripts": {

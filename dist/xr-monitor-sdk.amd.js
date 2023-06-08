@@ -238,7 +238,6 @@ define((function () { 'use strict';
       userAgent: userAgent.parse(navigator.userAgent).fullName,
       borwser: userAgent.parse(navigator.userAgent).name,
       client: userAgent.parse(navigator.userAgent).os
-
       //用户ID
     };
   }
@@ -285,7 +284,7 @@ define((function () { 'use strict';
   }
   var report = new Report();
 
-  function jsErrorHandle() {
+  function jsErrorHandle(options) {
     //监听全局未捕获的错误
     window.addEventListener('error', function (event) {
       //错误事件对象
@@ -293,6 +292,7 @@ define((function () { 'use strict';
       //这是一个脚本加载错误 图片  video资源缺少
       if (event.target && (event.target.src || event.target.href)) {
         report.send({
+          projectName: options.projectName,
           type: 'error',
           //小类型 这是一个错误
           errorType: 'resourceError',
@@ -305,6 +305,7 @@ define((function () { 'use strict';
         });
       } else {
         report.send({
+          projectName: options.projectName,
           type: 'error',
           //小类型 这是一个错误
           errorType: 'jsError',
@@ -322,7 +323,7 @@ define((function () { 'use strict';
     }, true);
   }
 
-  function promiseErrorHandle() {
+  function promiseErrorHandle(options) {
     /**
      * 捕获未处理的Promise异常
      */
@@ -349,6 +350,7 @@ define((function () { 'use strict';
       }
       //上报
       report.send({
+        projectName: options.projectName,
         type: 'error',
         //小类型 这是一个错误
         errorType: 'promiseError',
@@ -365,10 +367,11 @@ define((function () { 'use strict';
     }, true);
   }
 
-  function vueErrorHandler() {
+  function vueErrorHandler(options) {
     Vue.config.errorHandler = (error, vm, info) => {
       try {
         let metaData = {
+          projectName: options.projectName,
           message: error.message,
           stack: error.stack,
           info: info
@@ -388,7 +391,7 @@ define((function () { 'use strict';
     };
   }
 
-  function httpErrorHandle() {
+  function httpErrorHandle(options) {
     let XMLHttpRequest = window.XMLHttpRequest;
     let oldOpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function (method, url, async) {
@@ -413,7 +416,25 @@ define((function () { 'use strict';
           let duration = Date.now() - startTime - 2; //持续时间
           let status = this.status; //200 500
           let statusText = this.statusText; // OK Server Error
+          let new_method = '';
+          if (body) {
+            const {
+              method = ''
+            } = JSON.parse(body);
+            if (method === '') {
+              const url = this.logData.url;
+              const parts = url.split('/').slice(-2);
+              new_method = parts.join('/');
+            } else {
+              new_method = method;
+            }
+          } else {
+            const url = this.logData.url;
+            const parts = url.split('/').slice(-2);
+            new_method = parts.join('/');
+          }
           report.send({
+            projectName: options.projectName,
             type: 'xhr',
             eventType: type,
             //load error abort
@@ -421,13 +442,16 @@ define((function () { 'use strict';
             //请求路径
             status: status + '-' + statusText,
             //状态码
+            method: new_method || '',
+            //请求方法名
             duration,
             //持续时间
             response: this.response ? JSON.stringify(this.response) : '',
-            //响应体
-            request: body || ''
+            //返回响应
+            request: body || '' //请求参数
           });
         };
+
         this.addEventListener('load', handler('load'), false);
         this.addEventListener('error', handler('error'), false);
         this.addEventListener('abort', handler('abort'), false);
@@ -654,29 +678,29 @@ define((function () { 'use strict';
         vueError,
         performance
       } = this.options;
-      jsError && jsErrorHandle();
-      promiseError && promiseErrorHandle();
-      vueError && vueErrorHandler();
+      jsError && jsErrorHandle(this.options);
+      promiseError && promiseErrorHandle(this.options);
+      vueError && vueErrorHandler(this.options);
     }
     tool_http() {
       const {
         actionLogs
       } = this.options;
-      actionLogs && httpErrorHandle();
+      actionLogs && httpErrorHandle(this.options);
     }
     tool_performance() {
       const {
         performanceLogs
       } = this.options;
-      performanceLogs && performanceHandle();
+      performanceLogs && performanceHandle(this.options);
     }
     tool_pageRouter() {
       const {
         pageRouter
       } = this.options;
       if (pageRouter) {
-        hashPageTrackerReport();
-        historyPageTrackerReport();
+        hashPageTrackerReport(this.options);
+        historyPageTrackerReport(this.options);
       }
     }
   }
