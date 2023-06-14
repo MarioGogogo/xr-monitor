@@ -4,7 +4,9 @@ define((function () { 'use strict';
    * 阿里云日志上报系统这里不做处理
    * @type {string}
    */
-  const BASE_URL = 'http://127.0.0.1:7001/logs';
+
+  //TODO:解决配置url参数
+  const BASE_URL = 'https://egg-v1.fml.ink/logs';
   // this.url = `http://${project}.${host}/logstores/${logStore}/track`; //阿里云上报的路径
 
   function onload(callback) {
@@ -391,6 +393,30 @@ define((function () { 'use strict';
     };
   }
 
+  //手动上报日志
+  function handleReport(options) {
+    const {
+      projectName,
+      type,
+      method,
+      request,
+      response
+    } = options;
+    report.send({
+      projectName: projectName,
+      type: 'xhr',
+      //
+      eventType: type,
+      method: method || '',
+      //请求方法名
+      duration: '',
+      //持续时间
+      response: response ? JSON.stringify(response) : '',
+      //返回响应
+      request: request ? JSON.stringify(request) : '' //请求参数
+    });
+  }
+
   function httpErrorHandle(options) {
     let XMLHttpRequest = window.XMLHttpRequest;
     let oldOpen = XMLHttpRequest.prototype.open;
@@ -657,53 +683,64 @@ define((function () { 'use strict';
     });
   }
 
-  class xrMonitor {
-    constructor(options) {
-      this.options = options;
-    }
-    static init(options) {
-      //检查参数配置是否合法
-      checkOptions(options);
-      const monitor = new xrMonitor(options);
-      monitor.tool_error();
-      monitor.tool_http();
-      monitor.tool_performance();
-      monitor.tool_pageRouter();
-      return monitor;
-    }
-    tool_error() {
+  const xrMonitor = (() => {
+    function tool_error(options) {
       const {
         jsError,
         promiseError,
         vueError,
         performance
-      } = this.options;
-      jsError && jsErrorHandle(this.options);
-      promiseError && promiseErrorHandle(this.options);
-      vueError && vueErrorHandler(this.options);
+      } = options;
+      jsError && jsErrorHandle(options);
+      promiseError && promiseErrorHandle(options);
+      vueError && vueErrorHandler(options);
     }
-    tool_http() {
+    function tool_http(options) {
       const {
         actionLogs
-      } = this.options;
-      actionLogs && httpErrorHandle(this.options);
+      } = options;
+      actionLogs && httpErrorHandle(options);
     }
-    tool_performance() {
+    function tool_performance(options) {
       const {
         performanceLogs
-      } = this.options;
-      performanceLogs && performanceHandle(this.options);
+      } = options;
+      performanceLogs && performanceHandle();
     }
-    tool_pageRouter() {
+    function tool_pageRouter(options) {
       const {
         pageRouter
-      } = this.options;
+      } = options;
       if (pageRouter) {
-        hashPageTrackerReport(this.options);
-        historyPageTrackerReport(this.options);
+        hashPageTrackerReport();
+        historyPageTrackerReport();
       }
     }
-  }
+    class xrMonitor {
+      constructor(options) {
+        this.options = options;
+        this.init();
+      }
+      init() {
+        checkOptions(this.options);
+        tool_error(this.options);
+        tool_http(this.options);
+        tool_performance(this.options);
+        tool_pageRouter(this.options);
+      }
+      report(params) {
+        const reportParams = {
+          ...this.options,
+          ...params
+        }; // 合并参数
+        handleReport(reportParams);
+      }
+    }
+    xrMonitor.init = function (options) {
+      return new xrMonitor(options);
+    };
+    return xrMonitor;
+  })();
 
   return xrMonitor;
 

@@ -7,11 +7,10 @@
     <script src="dist/xr-monitor-sdk.js"></script>
     <script>
       // 现在，您可以使用 XrMonitor 对象来访问您的库中的方法 http://43.134.241.119:7001
-
-      XrMonitor.init({
+      const monitor = XrMonitor.init({
         projectName: 'KFT',
-        url: 'http://127.0.0.1:7001/logs', //错误上报地址
-        // url: 'http://43.134.241.119:7001',
+        // url: 'http://127.0.0.1:7001/logs',
+        url: 'https://egg-v1.fml.ink/logs',
         jsError: true,
         promiseError: true,
         vueError: false, //配置是否需要记录vue错误信息
@@ -19,6 +18,7 @@
         actionLogs: true, //是否需要记录action
         performanceLogs: false, //是否需要记录性能
       });
+      window.monitor = monitor;
     </script>
   </head>
 
@@ -30,6 +30,7 @@
         <input type="button" value="点击抛出Promise错误" onclick="promiseClick()" />
         <input id="successBtn" type="button" value="ajax 成功请求" onclick="sendSuccess()" />
         <input id="errorBtn" type="button" value="ajax 失败请求" onclick="sendError()" />
+        <input id="errorBtn" type="button" value="手动上报日志" onclick="handleReport()" />
         <div class="conten1t" style="width: 600px; word-wrap: break-word"></div>
       </div>
     </div>
@@ -96,6 +97,12 @@
           longitude: 53.81505,
         };
         xhr.send(JSON.stringify(data));
+      }
+
+      //手动上报日志
+      function handleReport() {
+        const params = { type: 'xhr', method: 'onSearch', request: { msg: '好笑死' } };
+        window.monitor.report(params);
       }
 
       // let content = document.getElementsByClassName('conten1t')[0]
