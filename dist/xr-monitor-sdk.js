@@ -265,7 +265,6 @@
           log[key] = `${log[key]}`;
         }
       }
-      console.table(log);
       let body = JSON.stringify({
         __logs__: [log]
       });
@@ -295,7 +294,7 @@
     //监听全局未捕获的错误
     window.addEventListener('error', function (event) {
       //错误事件对象
-      console.log('%c Line:12 🍪 path', 'font-size:18px;color:#ffffff;background:#CC9966', event.composedPath());
+
       //这是一个脚本加载错误 图片  video资源缺少
       if (event.target && (event.target.src || event.target.href)) {
         report.send({
@@ -335,7 +334,6 @@
      * 捕获未处理的Promise异常
      */
     window.addEventListener('unhandledrejection', event => {
-      console.log(event);
       let message;
       let filename;
       let line = 0;
@@ -377,7 +375,6 @@
 
   function vueErrorHandler(options) {
     Vue.config.errorHandler = (error, vm, info) => {
-      console.log('%c Line:4 🌰 error, vm, info', 'font-size:18px;color:#ffffff;background:#7f8fa6', error, vm, info);
       try {
         let metaData = {
           projectName: options.projectName,
@@ -396,9 +393,7 @@
           //JS执行错误
           message: JSON.stringify(metaData)
         });
-      } catch (error) {
-        console.log('%c Line:21 🍣 vueError', 'font-size:18px;color:#ffffff;background:#FF6666', error);
-      }
+      } catch (error) {}
     };
   }
 
@@ -499,16 +494,6 @@
    * history路由监听
    */
   function historyPageTrackerReport() {
-    let beforeTime = Date.now(); // 进入页面的时间
-    let beforePage = ''; // 上一个页面
-
-    // 获取在某个页面的停留时间
-    function getStayTime() {
-      let curTime = Date.now();
-      let stayTime = curTime - beforeTime;
-      beforeTime = curTime;
-      return stayTime;
-    }
 
     /**
      * 重写pushState和replaceState方法
@@ -538,45 +523,24 @@
 
     // history.pushState
     window.addEventListener('pushState', function () {
-      listener();
     });
 
     // history.replaceState
     window.addEventListener('replaceState', function () {
-      listener();
     });
     window.history.pushState = createHistoryEvent('pushState');
     window.history.replaceState = createHistoryEvent('replaceState');
 
-    /**
-     *
-     * 计算页面停留时间
-     */
-    function listener() {
-      const stayTime = getStayTime(); // 停留时间
-      const currentPage = window.location.href; // 页面路径
-      console.log('%c Line:63 🥔 页面停留时间', 'font-size:18px;color:#ffffff;background:#CC9966', beforePage + ' | ' + currentPage + '|' + stayTime);
-      // report('visit', {
-      //   stayTime,
-      //   page: beforePage,
-      // });
-      beforePage = currentPage;
-    }
-
     // 页面load监听
     window.addEventListener('load', function () {
-      // beforePage = location.href;
-      listener();
     });
 
     // unload监听
     window.addEventListener('unload', function () {
-      listener();
     });
 
     // history.go()、history.back()、history.forward() 监听
     window.addEventListener('popstate', function () {
-      listener();
     });
   }
 
@@ -584,34 +548,13 @@
    * hash路由监听
    */
   function hashPageTrackerReport() {
-    let beforeTime = Date.now(); // 进入页面的时间
-    let beforePage = ''; // 上一个页面
-
-    function getStayTime() {
-      let curTime = Date.now();
-      let stayTime = curTime - beforeTime;
-      beforeTime = curTime;
-      return stayTime;
-    }
-    function listener() {
-      const stayTime = getStayTime();
-      const currentPage = window.location.href;
-      console.log('%c Line:63 🥔 页面停留时间', 'font-size:18px;color:#ffffff;background:#CC9966', beforePage + ' | ' + currentPage + '|' + stayTime);
-      // report('visit', {
-      //   stayTime,
-      //   page: beforePage,
-      // });
-      beforePage = currentPage;
-    }
 
     // hash路由监听
     window.addEventListener('hashchange', function () {
-      listener();
     });
 
     // 页面load监听
     window.addEventListener('load', function () {
-      listener();
     });
     const createHistoryEvent = function (name) {
       const origin = window.history[name];
@@ -636,7 +579,6 @@
 
     // history.pushState
     window.addEventListener('pushState', function () {
-      listener();
     });
   }
 
@@ -663,13 +605,11 @@
       new PerformanceObserver((entryList, observer) => {
         let lastEvent = getLastEvent();
         let firstInput = entryList.getEntries()[0];
-        console.log('%c Line:25 🍆 FID', 'font-size:18px;color:#ffffff;background:#FFCC99', firstInput);
         if (firstInput) {
           //  startTime开点击的时间 差值就是处理的延迟
           let inputDelay = firstInput.processingStart - firstInput.startTime;
           let duration = firstInput.duration; //处理的耗时
           if (inputDelay > 0 || duration > 0) {
-            console.log('%c Line:30 👨🏻‍🏫 首次输入延迟日志上报', 'font-size:18px;color:#ffffff;background:#c23616');
             report.send({
               type: 'performance',
               //用户体验指标
@@ -786,7 +726,6 @@
         this.init();
       }
       init() {
-        console.log('xrMonitor初始化成功');
         checkOptions(this.options);
         tool_error(this.options);
         tool_http(this.options);
@@ -794,7 +733,6 @@
         tool_pageRouter(this.options);
       }
       report(params) {
-        console.log('init options', this.options);
         const reportParams = {
           ...this.options,
           ...params

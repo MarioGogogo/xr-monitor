@@ -15,7 +15,7 @@ export default [
       commonjs(),
       babel({
         exclude: 'node_modules/**', // 不编译 node_modules 中的代码
-        //plugins: [['transform-remove-console', { exclude: ['error', 'warn'] }]], //删除所有 console.log 语句
+        plugins: [['transform-remove-console', { exclude: ['error', 'warn'] }]], //删除所有 console.log 语句
       }),
       deletePlugin({
         targets: 'dist/*',
